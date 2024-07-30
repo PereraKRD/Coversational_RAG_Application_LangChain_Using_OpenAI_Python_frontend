@@ -3,7 +3,6 @@ import requests
 
 FASTAPI_URL = "https://softgbotappservice.azurewebsites.net/query"
 
-# App title
 st.set_page_config(page_title="SoftG Chatbot")
 
 hide_menu_style = """<style>#MainMenu {visibility: hidden;} footer {visibility: hidden;}</style>"""
@@ -13,11 +12,9 @@ with st.sidebar:
     st.header('Configuration')
     session_id = st.text_input("Session ID", value = 'default-session')
 
-# Store LLM generated responses
 if "messages" not in st.session_state.keys():
     st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
 
-# Display or clear chat messages
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.write(message["content"])
@@ -35,14 +32,11 @@ def get_response(session_id,user_input):
     )
     return response.json().get("answer","No response recieved")
 
-# User-provided prompt
 if prompt := st.chat_input(key="user_input"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.write(prompt)
 
-
-# Generate a new response if last message is not from assistant
 if st.session_state.messages[-1]["role"] != "assistant":
     with st.chat_message("assistant"):
         with st.spinner("..."):
