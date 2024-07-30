@@ -10,7 +10,8 @@ st.markdown(hide_menu_style, unsafe_allow_html=True)
 
 with st.sidebar:
     st.header('Configuration')
-    session_id = st.text_input("Session ID", value = 'default-session')
+    st.write("To start enter a session ID and press enter :")
+    session_id = st.text_input("Session ID", value = '110')
 
 if "messages" not in st.session_state.keys():
     st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
