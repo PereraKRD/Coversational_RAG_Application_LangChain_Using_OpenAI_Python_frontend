@@ -23,7 +23,7 @@ for message in st.session_state.messages:
 def clear_chat_history():
     st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
 
-st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
+st.sidebar.button('Clear Chat', on_click=clear_chat_history)
 
 def get_response(session_id,user_input):
     payload = {"session_id": session_id, "input" : user_input}
