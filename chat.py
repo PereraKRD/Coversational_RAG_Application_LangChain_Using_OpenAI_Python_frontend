@@ -1,29 +1,13 @@
 import streamlit as st
 import requests
+import uuid
 
 FASTAPI_URL = "https://softgbotappservice.azurewebsites.net/query"
 
-st.set_page_config(page_title="SoftG Chatbot")
-
-hide_menu_style = """<style>#MainMenu {visibility: hidden;} footer {visibility: hidden;}</style>"""
-st.markdown(hide_menu_style, unsafe_allow_html=True)
-
-with st.sidebar:
-    st.header('Configuration')
-    st.write("To start enter a session ID and press enter :")
-    session_id = st.text_input("Session ID", value = '110')
-
-if "messages" not in st.session_state.keys():
-    st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
-
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.write(message["content"])
-
-def clear_chat_history():
-    st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
-
-st.sidebar.button('Clear Chat', on_click=clear_chat_history)
+#Functions
+def start_new_chat():
+    st.session_state.session_id = str(uuid.uuid4())
+    clear_chat_history()
 
 def get_response(session_id,user_input):
     payload = {"session_id": session_id, "input" : user_input}
@@ -31,7 +15,32 @@ def get_response(session_id,user_input):
         FASTAPI_URL,
         json=payload
     )
-    return response.json().get("answer","No response recieved")
+    return response.json().get("answer", ["No response received"])
+
+def clear_chat_history():
+    st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
+
+
+#Main Code
+st.set_page_config(page_title="SoftG Chatbot", page_icon="🤖", layout="centered", initial_sidebar_state="auto")
+
+hide_menu_style = """<style>#MainMenu {visibility: hidden;} footer {visibility: hidden;}</style>"""
+st.markdown(hide_menu_style, unsafe_allow_html=True)
+
+with st.sidebar:
+    st.header('Welcom to SoftG Chatbot')
+    st.button('New Chat', on_click=start_new_chat)
+    st.button('Clear Chat', on_click=clear_chat_history)
+
+if "session_id" not in st.session_state.keys():
+    st.session_state.session_id = str(uuid.uuid4())
+
+if "messages" not in st.session_state.keys():
+    st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
+
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.write(message["content"])
 
 if prompt := st.chat_input(key="user_input"):
     st.session_state.messages.append({"role": "user", "content": prompt})
@@ -41,7 +50,8 @@ if prompt := st.chat_input(key="user_input"):
 if st.session_state.messages[-1]["role"] != "assistant":
     with st.chat_message("assistant"):
         with st.spinner("..."):
-            response = get_response(session_id,prompt)
+            session_id = st.session_state.session_id
+            response = get_response(session_id, st.session_state.messages[-1]["content"])
             placeholder = st.empty()
             full_response = ''
             for item in response:
