@@ -28,9 +28,10 @@ hide_menu_style = """<style>#MainMenu {visibility: hidden;} footer {visibility: 
 st.markdown(hide_menu_style, unsafe_allow_html=True)
 
 with st.sidebar:
-    st.header('Welcom to SoftG Chatbot')
-    st.button('New Chat', on_click=start_new_chat)
-    st.button('Clear Chat', on_click=clear_chat_history)
+    st.header('Welcome to SoftG Chatbot', divider= "blue")
+    st.subheader('Options :')
+    st.button('New  Chat', on_click=start_new_chat, help="Start a new chat session" , use_container_width=True)
+    st.button('Clear Chat', on_click=clear_chat_history , help="Clear chat history", use_container_width=True)
 
 if "session_id" not in st.session_state.keys():
     st.session_state.session_id = str(uuid.uuid4())
