@@ -2,27 +2,36 @@ import streamlit as st
 import requests
 import uuid
 
-FASTAPI_URL = "https://softgbotappservice.azurewebsites.net/query"
+#Main Code
+st.set_page_config(page_title="SoftG Chatbot", page_icon="🤖", layout="centered", initial_sidebar_state="auto")
+
+if "session_id" not in st.session_state.keys():
+    st.session_state.session_id = str(uuid.uuid4())
+
+#BASE_URL='http://127.0.0.1:8000'
+BASE_URL = "https://softgbotappservice.azurewebsites.net"
+OPENAI_RESPONSE_URL = f"{BASE_URL}/query"
+SESSION_DELELTE_URL = f"{BASE_URL}/history/{st.session_state.session_id}"
 
 #Functions
 def start_new_chat():
+    requests.delete(
+        SESSION_DELELTE_URL,
+    )
     st.session_state.session_id = str(uuid.uuid4())
     clear_chat_history()
 
 def get_response(session_id,user_input):
     payload = {"session_id": session_id, "input" : user_input}
     response = requests.post(
-        FASTAPI_URL,
+        OPENAI_RESPONSE_URL,
         json=payload
     )
     return response.json().get("answer", ["No response received"])
 
 def clear_chat_history():
-    st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
+    st.session_state.messages = [{"role": "assistant", "content": "Hello ! How can I assist you today regarding our company Soft Gallery (PVT) LTD ?"}]
 
-
-#Main Code
-st.set_page_config(page_title="SoftG Chatbot", page_icon="🤖", layout="centered", initial_sidebar_state="auto")
 
 hide_menu_style = """<style>#MainMenu {visibility: hidden;} footer {visibility: hidden;}</style>"""
 st.markdown(hide_menu_style, unsafe_allow_html=True)
@@ -33,11 +42,8 @@ with st.sidebar:
     st.button('New  Chat', on_click=start_new_chat, help="Start a new chat session" , use_container_width=True)
     st.button('Clear Chat', on_click=clear_chat_history , help="Clear chat history", use_container_width=True)
 
-if "session_id" not in st.session_state.keys():
-    st.session_state.session_id = str(uuid.uuid4())
-
 if "messages" not in st.session_state.keys():
-    st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
+    st.session_state.messages = [{"role": "assistant", "content": "Hello ! How can I assist you today regarding our company Soft Gallery (PVT) LTD ?"}]
 
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
