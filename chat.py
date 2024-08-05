@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 import uuid
+import streamlit.components.v1 as components
 
 #Main Code
 st.set_page_config(page_title="SoftG Chatbot", page_icon="🤖", layout="centered", initial_sidebar_state="auto")
@@ -8,15 +9,28 @@ st.set_page_config(page_title="SoftG Chatbot", page_icon="🤖", layout="centere
 if "session_id" not in st.session_state.keys():
     st.session_state.session_id = str(uuid.uuid4())
 
-#BASE_URL='http://127.0.0.1:8000'
+# BASE_URL='http://127.0.0.1:8000'
 BASE_URL = "https://softgbotappservice.azurewebsites.net"
 OPENAI_RESPONSE_URL = f"{BASE_URL}/query"
-SESSION_DELELTE_URL = f"{BASE_URL}/history/{st.session_state.session_id}"
+SESSION_DELETE_URL = f"{BASE_URL}/history/{st.session_state.session_id}"
+
+#on window close event
+delete_session_js = f"""
+<script>
+window.addEventListener('beforeunload', function (e) {{
+    fetch('{SESSION_DELETE_URL}', {{
+        method: 'DELETE'
+    }});
+}});
+</script>
+"""
+
+components.html(delete_session_js, height=0, width=0)
 
 #Functions
 def start_new_chat():
     requests.delete(
-        SESSION_DELELTE_URL,
+        SESSION_DELETE_URL,
     )
     st.session_state.session_id = str(uuid.uuid4())
     clear_chat_history()
